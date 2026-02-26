@@ -32,8 +32,8 @@ class Customer(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
 
     age = models.IntegerField(null=True, blank=True)
-    height = models.FloatField(null=True, blank=True)  # cm
-    weight = models.FloatField(null=True, blank=True)  # kg
+    height = models.FloatField(null=True, blank=True)  
+    weight = models.FloatField(null=True, blank=True) 
 
     calorie_goal = models.IntegerField(null=True, blank=True)
 
@@ -102,7 +102,7 @@ class DailyEntry(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.calorie_goal:
-            self.calorie_goal = self.customer.calorie_goal or 2000
+            self.calorie_goal = self.customer.calorie_goal or 100
         super().save(*args, **kwargs)
 
     def __str__(self):

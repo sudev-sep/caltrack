@@ -1,22 +1,14 @@
-from django.shortcuts import get_object_or_404
-from django.utils.dateparse import parse_date
-from django.utils import timezone
 from django.contrib.auth import authenticate
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django.utils.dateparse import parse_date
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-
-from datetime import date, datetime
-import logging
-import re
-
-from .models import Customer, DailyEntry, FoodItem, ExerciseItem
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import Customer, DailyEntry, ExerciseItem, FoodItem
 from .serializers import CustomerSerializer, DailyEntrySerializer
-
-
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -100,17 +92,9 @@ class PresetView(APIView):
         })
 
 
-# views.py
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .models import DailyEntry, FoodItem
-from .serializers import DailyEntrySerializer
-# from .utils import search_food_fatsecret
 
 class FetchDailyDataView(APIView):
     def get(self, request, date):
-        # Format expected: YYYY-MM-DD
         customer = request.user.customer_profile
         entry, created = DailyEntry.objects.get_or_create(
             customer=customer, 
@@ -121,31 +105,7 @@ class FetchDailyDataView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# class AddFoodFromSearchView(APIView):
-#     def post(self, request, date):
-#         query = request.data.get('query')
-#         customer = request.user.customer_profile
-        
-#         entry, _ = DailyEntry.objects.get_or_create(customer=customer, date=date)
-        
-#         # This now returns our clean, parsed dictionary
-#         fs_data = search_food_fatsecret(query)
-        
-#         if not fs_data:
-#             return Response({"error": "Food not found in database"}, status=status.HTTP_404_NOT_FOUND)
-        
-#         # Create the Food Item using the exact parsed numbers
-#         FoodItem.objects.create(
-#             daily_entry=entry,
-#             name=fs_data['name'],
-#             calories=fs_data['calories'],
-#             protein=fs_data['protein'],
-#             carbs=fs_data['carbs'],
-#             fat=fs_data['fat']
-#         )
-        
-#         serializer = DailyEntrySerializer(entry)
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 
 from .utils import analyze_entry_with_gemini
@@ -155,17 +115,28 @@ class AddSmartEntryView(APIView):
         if not query:
             return Response({"error": "No query provided"}, status=status.HTTP_400_BAD_REQUEST)
             
-        # 1. Ask Gemini to analyze the text
-        ai_result = analyze_entry_with_gemini(query)
+        try:
+            ai_result = analyze_entry_with_gemini(query)
+            print(f"--- AI RAW RESULT: {ai_result} ---")
         
-        if not ai_result:
-            return Response({"error": "AI could not understand the input"}, status=status.HTTP_400_BAD_REQUEST)
+            if not ai_result:
+                return Response({"error": "AI could not understand the input"}, status=status.HTTP_400_BAD_REQUEST)
+                
+        except Exception as e:
+            error_message = str(e)
+            if "429" in error_message or "Quota exceeded" in error_message:
+                return Response({
+                    "error": "The AI is cooling down. Please wait about 40 seconds and try again."
+                }, status=status.HTTP_429_TOO_MANY_REQUESTS)
             
-        # 2. Get the daily entry
+            return Response({
+                "error": "AI calculation failed due to an unexpected error."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        
         customer = request.user.customer_profile
         entry, _ = DailyEntry.objects.get_or_create(customer=customer, date=date)
         
-        # 3. Handle Food
         if ai_result.get('type') == 'food':
             FoodItem.objects.create(
                 daily_entry=entry,
@@ -176,21 +147,149 @@ class AddSmartEntryView(APIView):
                 fat=ai_result.get('fat', 0)
             )
             
-        # 4. Handle Exercise
         elif ai_result.get('type') == 'exercise':
             burned = ai_result.get('calories_burned', 0)
             
-            # Create the list item so we remember what they did
             ExerciseItem.objects.create(
                 daily_entry=entry,
                 name=ai_result.get('name', 'Workout'),
                 calories_burned=burned
             )
-            
-            # Keep the daily total math working
-            entry.calories_burned += burned
+            entry.calories_burned = sum(e.calories_burned for e in entry.exercises.all())
             entry.save()
-            
-        # 5. Return updated data to Angular (MUST be outside the if/elif blocks!)
+
+        else:
+            return Response({"error": "AI returned an unrecognized type"}, status=status.HTTP_400_BAD_REQUEST)
         serializer = DailyEntrySerializer(entry)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+class UPDATEEXERCISEAI(APIView):
+    def put(self, request, entry_id):
+        exercise = get_object_or_404(ExerciseItem, id=entry_id)
+        exercise.name = request.data.get('name', exercise.name)
+        exercise.calories_burned = request.data.get('calories_burned', exercise.calories_burned)
+        exercise.save()
+        
+        daily_entry = exercise.daily_entry
+        daily_entry.calories_burned = sum(e.calories_burned for e in daily_entry.exercises.all())
+        daily_entry.save()
+        
+        return Response({"message": "Exercise entry updated"}, status=status.HTTP_200_OK)
+    
+
+class UPDATEFOODAI(APIView):
+    def put(self,request,entry_id):
+        food=get_object_or_404(FoodItem, id=entry_id)
+        food.name=request.data.get('name', food.name)
+        food.calories=request.data.get('calories', food.calories)
+        food.protein=request.data.get('protein', food.protein)
+        food.carbs=request.data.get('carbs', food.carbs)
+        food.fat=request.data.get('fat', food.fat)
+        food.save()
+
+        daily_entry = food.daily_entry
+        daily_entry.calories_consumed = sum(f.calories for f in daily_entry.foods.all())
+        daily_entry.save()
+
+        return Response({"message": "Food entry updated"}, status=status.HTTP_200_OK)
+    
+
+class DeleteFoodEntryView(APIView):
+    def delete(self, request, entry_id):
+        food = get_object_or_404(FoodItem, id=entry_id)
+        food.delete()
+
+        daily_entry = food.daily_entry
+        daily_entry.calories_consumed = sum(f.calories for f in daily_entry.foods.all())
+        daily_entry.save()
+        return Response({"message": "Food entry deleted"}, status=status.HTTP_200_OK)
+    
+class DeleteExerciseEntryView(APIView):
+    def delete(self, request, entry_id):
+        exercise = get_object_or_404(ExerciseItem, id=entry_id)
+        daily_entry = exercise.daily_entry
+        exercise.delete()
+        
+        daily_entry.calories_burned = sum(e.calories_burned for e in daily_entry.exercises.all())
+        daily_entry.save()
+        
+        return Response({"message": "Exercise entry deleted"}, status=status.HTTP_200_OK)
+    
+
+
+class AICalculationView(APIView):
+    def post(self, request):
+        query = request.data.get('query')
+        item_type = request.data.get('type') 
+        
+        if not query:
+            return Response({"error": "No query provided"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            ai_result = analyze_entry_with_gemini(query)
+            
+            if not ai_result:
+                return Response({"error": "AI could not process the input"}, status=status.HTTP_400_BAD_REQUEST)
+                
+            return Response(ai_result, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            error_message = str(e)
+            if "429" in error_message or "Quota exceeded" in error_message:
+                return Response({
+                    "error": "The AI is cooling down. Please wait about 40 seconds and try again."
+                }, status=status.HTTP_429_TOO_MANY_REQUESTS)
+            
+            return Response({
+                "error": "AI service is currently unavailable."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        customer = request.user.customer_profile
+        
+        print(f"Fetching profile for {customer.user.username}...")
+        print(f"Profile data: {customer.__dict__}")
+        
+        return Response({
+            "username": request.user.username,
+            "email": request.user.email,
+            "customer_id": customer.customer_id,
+            "gender": customer.gender,
+            "age": customer.age,
+            "height": customer.height,
+            "weight": customer.weight,
+            "calorie_goal": customer.calorie_goal,
+            "joined_at": customer.joined_at.strftime('%B %Y') if customer.joined_at else "Recently"
+        }, status=status.HTTP_200_OK)
+    
+
+
+class WeeklySummaryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        customer = request.user.customer_profile
+        today = timezone.now().date()
+        seven_days_ago = today - timezone.timedelta(days=6)
+
+        entries = DailyEntry.objects.filter(
+            customer=customer,
+            date__range=[seven_days_ago, today]
+        ).order_by('date')
+
+        summary = []
+        for entry in entries:
+            summary.append({
+                "date": entry.date.strftime('%Y-%m-%d'),
+                "total_calories": entry.calories_consumed,
+                "calorie_goal": customer.calorie_goal,
+                "goal_met": entry.calories_consumed <= customer.calorie_goal
+            })
+
+        return Response(summary, status=status.HTTP_200_OK)
