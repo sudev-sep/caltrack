@@ -1,0 +1,144 @@
+<div class="container-fluid p-4 d-flex justify-content-center align-items-center" style="background-color: #000000; min-height: 100vh;">
+  <div class="glass-card w-100 shadow-lg" style="max-width: 500px; background-color: #171221; border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 2.5rem;">
+    
+    
+
+
+    
+  <div class="d-flex justify-content-between align-items-center mb-4">
+  <button class="btn border-0 p-0 text-white shadow-none" type="button" (click)="toggleMenu()">
+    <i class="bi bi-list" style="font-size: 2.2rem;"></i>
+  </button>
+  
+  <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+    <i class="bi bi-person-fill text-white-50"></i>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-start border-0" 
+     [ngClass]="{'show': isMenuOpen}" 
+     [style.visibility]="isMenuOpen ? 'visible' : 'hidden'"
+     tabindex="-1" 
+     style="background-color: #171221; width: 280px; transition: transform 0.3s ease-in-out;">
+  
+  <div class="offcanvas-header border-bottom border-light border-opacity-10 p-4">
+    <h5 class="offcanvas-title fw-bolder text-white d-flex align-items-center gap-2">
+      <i class="bi bi-activity" style="color: #a78bfa;"></i> CalTrack
+    </h5>
+    <button type="button" class="btn-close btn-close-white shadow-none" (click)="toggleMenu()"></button>
+  </div>
+
+  <div class="offcanvas-body p-4">
+    <ul class="nav flex-column gap-3">
+
+
+       <li class="nav-item">
+        <a class="nav-link text-white fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="navigateAndClose('/goalset')">
+          <i class="bi bi-person-fill" style="color: #adaca7;"></i>profile</a>
+      </li>
+
+
+      <li class="nav-item">
+        <a class="nav-link text-white fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="navigateAndClose('/home')">
+          <i class="bi bi-house-door-fill" style="color: #38bdf8;"></i> Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="navigateAndClose('/weekreport')">
+          <i class="bi bi-bar-chart-fill" style="color: #fcd34d;"></i> Weekly Report
+        </a>
+      </li>
+
+     
+
+      <li class="nav-item mt-4 pt-4 border-top border-light border-opacity-10">
+        <a class="nav-link text-danger fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="logout(); toggleMenu()">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div *ngIf="isMenuOpen" 
+     class="offcanvas-backdrop fade show" 
+     (click)="toggleMenu()"
+     style="background-color: rgba(0,0,0,0.6);">
+</div>
+
+
+
+
+    <div class="text-center mb-4 pb-2">
+      <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+           style="width: 70px; height: 70px; background-color: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.3);">
+        <i class="bi bi-sliders text-white fs-2" style="color: #a78bfa !important;"></i>
+      </div>
+      <h3 class="fw-bolder text-white mb-1">Presetting</h3>
+      <p class="text-white-50 small">Enter your details to calculate your daily calorie goal.</p>
+    </div>
+
+    <div class="row g-4 mb-4">
+      
+      <div class="col-sm-6">
+        <label class="form-label fw-semibold text-white-50 small mb-2">
+          <i class="bi bi-gender-ambiguous me-2" style="color: #a78bfa;"></i>Gender
+        </label>
+        <select class="form-select shadow-none border-0 text-white py-2" style="background-color: #2a223f; border-radius: 0.5rem;" [(ngModel)]="gender">
+          <option value="" disabled selected>Select gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+
+      <div class="col-sm-6">
+        <label class="form-label fw-semibold text-white-50 small mb-2">
+          <i class="bi bi-calendar-heart me-2" style="color: #fb7185;"></i>Age
+        </label>
+        <input type="number" class="form-control shadow-none border-0 text-white py-2" style="background-color: #2a223f; border-radius: 0.5rem;" [(ngModel)]="age" placeholder="e.g. 23" />
+      </div>
+
+      <div class="col-sm-6">
+        <label class="form-label fw-semibold text-white-50 small mb-2">
+          <i class="bi bi-rulers me-2" style="color: #38bdf8;"></i>Height <span class="text-muted fw-normal">(cm)</span>
+        </label>
+        <input type="number" class="form-control shadow-none border-0 text-white py-2" style="background-color: #2a223f; border-radius: 0.5rem;" [(ngModel)]="height" placeholder="e.g. 175" />
+      </div>
+
+      <div class="col-sm-6">
+        <label class="form-label fw-semibold text-white-50 small mb-2">
+          <i class="bi bi-speedometer me-2" style="color: #fcd34d;"></i>Weight <span class="text-muted fw-normal">(kg)</span>
+        </label>
+        <input type="number" class="form-control shadow-none border-0 text-white py-2" style="background-color: #2a223f; border-radius: 0.5rem;" [(ngModel)]="weight" placeholder="e.g. 70" />
+      </div>
+
+      <div class="col-12">
+        <label class="form-label fw-semibold text-white-50 small mb-2">
+          <i class="bi bi-bullseye me-2" style="color: #7c3aed;"></i>Goal
+        </label>
+        <select class="form-select shadow-none border-0 text-white py-2" style="background-color: #2a223f; border-radius: 0.5rem;" [(ngModel)]="goal">
+          <option value="" disabled selected>Select your goal</option>
+          <option value="lose">Weight Loss</option>
+          <option value="maintain">Maintain Weight</option>
+          <option value="gain">Weight Gain</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div *ngIf="error" class="alert border-0 d-flex align-items-center gap-2 py-2 mb-4" style="background-color: rgba(220, 53, 69, 0.1); color: #ff6b6b; border-radius: 0.5rem;">
+      <i class="bi bi-exclamation-octagon-fill"></i> {{ error }}
+    </div>
+
+    <button class="btn w-100 fw-bold py-3 shadow-none text-white mt-2 d-flex justify-content-center align-items-center gap-2" 
+            style="background-color: #7c3aed; border-radius: 0.75rem; transition: background-color 0.2s;" 
+            (click)="savePreset()" 
+            [disabled]="loading">
+      <span *ngIf="!loading">Calculate Goal</span>
+      <div *ngIf="loading" class="spinner-border spinner-border-sm text-light" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </button>
+
+  </div>
+</div>

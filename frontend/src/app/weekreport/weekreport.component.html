@@ -1,0 +1,157 @@
+
+<div class="container p-4  mt-4 mb-5" style="max-width: 768px";>
+
+<div class="container-fluid p-4" style="background-color: #000000; min-height: 100vh;">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <button class="btn border-0 p-0 text-white shadow-none" type="button" (click)="toggleMenu()">
+      <i class="bi bi-list" style="font-size: 2.2rem;"></i>
+    </button>
+    <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+      <i class="bi bi-person-fill text-white-50"></i>
+    </div>
+  </div>
+
+  <div class="offcanvas offcanvas-start border-0" 
+       [ngClass]="{'show': isMenuOpen}" 
+       [style.visibility]="isMenuOpen ? 'visible' : 'hidden'"
+       tabindex="-1" 
+       style="background-color: #171221; width: 280px; transition: transform 0.3s ease-in-out;">
+    
+    <div class="offcanvas-header border-bottom border-light border-opacity-10 p-4">
+      <h5 class="offcanvas-title fw-bolder text-white d-flex align-items-center gap-2">
+        <i class="bi bi-activity" style="color: #a78bfa;">C</i> CalTrack
+      </h5>
+      <button type="button" class="btn-close btn-close-white shadow-none" (click)="toggleMenu()"></button>
+    </div>
+
+    <div class="offcanvas-body p-4">
+      <ul class="nav flex-column gap-3">
+        <li class="nav-item">
+          <a class="nav-link text-white fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="navigateAndClose('/goalset')">
+            <i class="bi bi-person-fill" style="color: #adaca7;"></i> Profile
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="navigateAndClose('/home')">
+            <i class="bi bi-house-door-fill" style="color: #38bdf8;"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="navigateAndClose('/weekreport')">
+            <i class="bi bi-bar-chart-fill" style="color: #fcd34d;"></i> Weekly Report
+          </a>
+        </li>
+        <li class="nav-item mt-4 pt-4 border-top border-light border-opacity-10">
+          <a class="nav-link text-danger fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="logout(); toggleMenu()">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div *ngIf="isMenuOpen" 
+       class="offcanvas-backdrop fade show" 
+       (click)="toggleMenu()"
+       style="background-color: rgba(0,0,0,0.6);">
+  </div>
+
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <h3 class="fw-bolder text-white mb-0">Weekly Report</h3>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-6">
+      <div class="glass-card p-3 text-center shadow-sm" style="background-color: #171221; border: 1px solid rgba(255,255,255,0.05); border-radius: 1rem;">
+        <i class="bi bi-fire fs-3 d-block mb-2" style="color: #fb7185;"></i>
+        <h4 class="fw-bold text-white mb-0">{{ averageCalories }}</h4>
+        <span class="text-white-50 small">Avg. kcal/day</span>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="glass-card p-3 text-center shadow-sm" style="background-color: #171221; border: 1px solid rgba(255,255,255,0.05); border-radius: 1rem;">
+        <i class="bi bi-check-circle-fill fs-3 d-block mb-2" style="color: #34d399;"></i>
+        <h4 class="fw-bold text-white mb-0">{{ goalsMetCount }} <span class="fs-6 text-white-50">/ 7</span></h4>
+        <span class="text-white-50 small">Goals Met</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-card p-4 mb-4 shadow-lg" style="background-color: #171221; border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="fw-bold text-white mb-0">Calorie Intake</h5>
+      <div >
+        <label> This Week</label>
+      </div>
+    </div>
+    
+    <div class="d-flex align-items-end justify-content-between pt-3" style="height: 160px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+      <div *ngFor="let day of chartData" 
+           class="rounded-top" 
+           [class.shadow]="day.isOverGoal"
+           [ngStyle]="{
+             'width': '10%', 
+             'height': day.heightPercentage + '%', 
+             'background-color': day.isOverGoal ? '#7c3aed' : (day.total_calories > 0 ? '#abed3a' : '#2a223f'), 
+             'opacity': day.isOverGoal ? '1' : '0.8'
+           }">
+      </div>
+    </div>
+    
+    <div class="d-flex justify-content-between mt-2 text-white-50 small px-1">
+      <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+    </div>
+
+    <div class="d-flex justify-content-center gap-4 mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.05);">
+      <div class="d-flex align-items-center gap-2">
+        <div class="rounded-circle shadow-sm" style="width: 10px; height: 10px; background-color:#abed3a;"></div>
+        <span class="text-white-50 small">Goal Met</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <div class="rounded-circle shadow-sm" style="width: 10px; height: 10px; background-color: #7c3aed;"></div>
+        <span class="text-white-50 small">Over Goal</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <div class="rounded-circle shadow-sm" style="width: 10px; height: 10px; background-color: #2a223f;"></div>
+        <span class="text-white-50 small">No Data</span>
+      </div>
+    </div>
+  </div>
+
+  <h5 class="fw-bold text-white mb-3 mt-4">Daily Breakdown</h5>
+  
+  <ng-container *ngFor="let day of chartData">
+    <div *ngIf="day.total_calories > 0" class="glass-card p-3 mb-3 d-flex align-items-center gap-3 shadow-sm" style="background-color: #171221; border: 1px solid rgba(255,255,255,0.05); border-radius: 1rem;">
+      
+      <div class="text-center" style="width: 45px;">
+        <span class="text-white-50 small d-block">{{ day.date | date:'EEE' }}</span>
+        <span class="fw-bold text-white fs-5">{{ day.date | date:'d' }}</span>
+      </div>
+
+      <div class="flex-grow-1">
+        <div class="d-flex justify-content-between mb-2">
+          <span class="small fw-bold" [ngStyle]="{'color': day.isOverGoal ? '#7c3aed' : '#abed3a'}">
+            {{ day.total_calories }} kcal
+          </span>
+          <span class="text-white-50 small">{{ day.calorie_goal }} goal</span>
+        </div>
+        
+        <div class="progress" style="height: 8px; background-color: #2a223f; border-radius: 1rem;">
+          <div class="progress-bar" role="progressbar" 
+               [ngStyle]="{
+                 'width': ((day.total_calories / day.calorie_goal) * 100 > 100 ? 100 : (day.total_calories / day.calorie_goal) * 100) + '%', 
+                 'background-color': day.isOverGoal ? ' #7c3aed' : '#abed3a', 
+                 'border-radius': '1rem'
+               }">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+</div> 
+
+</div>
+

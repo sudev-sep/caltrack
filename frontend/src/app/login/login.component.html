@@ -1,0 +1,62 @@
+<div class="container-fluid d-flex justify-content-center align-items-center" style="background-color: #000000; min-height: 100vh; padding: 1rem;">
+  
+  <div class="glass-card w-100 shadow-lg" style="max-width: 400px; background-color: #171221; border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 2.5rem;">
+    
+    <div class="text-center mb-4">
+      <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+           style="width: 70px; height: 70px; background-color: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.3);">
+        <i class="bi bi-activity text-white fs-2" style="color: #a78bfa !important;">C</i>
+      </div>
+      <h3 class="fw-bolder text-white mb-1">Welcome Back</h3>
+      <p class="text-white-50 small">Sign in to continue to CalTrack</p>
+    </div>
+
+    <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)" novalidate>
+      
+      <div class="mb-3">
+        <label for="username" class="form-label fw-semibold text-white-50 small mb-2">
+          <i class="bi bi-person me-2" style="color: #a78bfa;"></i>Username
+        </label>
+        <input type="text" 
+               id="username" 
+               name="username" 
+               class="form-control shadow-none border-0 text-white py-2 px-3" 
+               style="background-color: #2a223f; border-radius: 0.5rem;" 
+               required 
+               [(ngModel)]="loginData.username" 
+               placeholder="Enter your username">
+      </div>
+
+      <div class="mb-4">
+        <label for="password" class="form-label fw-semibold text-white-50 small mb-2">
+          <i class="bi bi-shield-lock me-2" style="color: #a78bfa;"></i>Password
+        </label>
+        <input type="password" 
+               id="password" 
+               name="password" 
+               class="form-control shadow-none border-0 text-white py-2 px-3" 
+               style="background-color: #2a223f; border-radius: 0.5rem;" 
+               required 
+               [(ngModel)]="loginData.password" 
+               placeholder="Enter your password">
+      </div>
+
+      <button type="submit" 
+              class="btn w-100 fw-bold py-3 shadow-none text-white d-flex justify-content-center align-items-center gap-2" 
+              style="background-color: #7c3aed; border-radius: 0.75rem; transition: background-color 0.2s;" 
+              [disabled]="loginForm.invalid">
+        Sign In
+      </button>
+
+    <div class="text-center mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.05);">
+  <p class="text-white-50 small mb-0">
+    Don't have an account? 
+    <a (click)="navigateAndClose('/register')" class="text-decoration-none fw-semibold" style="color: #a78bfa; transition: color 0.2s; cursor: pointer;">
+      Sign up
+    </a>
+  </p>
+</div>
+
+    </form>
+  </div>
+</div>

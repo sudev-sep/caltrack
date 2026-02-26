@@ -1,0 +1,300 @@
+
+<div class="container p-4  mt-4 mb-5 border-0" style="max-width: 768px";>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <button class="btn border-0 p-0 text-white shadow-none" type="button" (click)="toggleMenu()">
+    <i class="bi bi-list" style="font-size: 2.2rem;"></i>
+  </button>
+  
+  <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+    <i class="bi bi-person-fill text-white-50"></i>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-start border-0" 
+     [ngClass]="{'show': isMenuOpen}" 
+     [style.visibility]="isMenuOpen ? 'visible' : 'hidden'"
+     tabindex="-1" 
+     style="background-color: #171221; width: 280px; transition: transform 0.3s ease-in-out;">
+  
+  <div class="offcanvas-header border-bottom border-light border-opacity-10 p-4">
+    <h5 class="offcanvas-title fw-bolder text-white d-flex align-items-center gap-2">
+      <i class="bi bi-activity" style="color: #a78bfa;">C</i> CalTrack
+    </h5>
+    <button type="button" class="btn-close btn-close-white shadow-none" (click)="toggleMenu()"></button>
+  </div>
+
+  <div class="offcanvas-body p-4">
+    <ul class="nav flex-column gap-3">
+
+
+       <li class="nav-item">
+        <a class="nav-link text-white fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="navigateAndClose('/goalset')">
+          <i class="bi bi-person-fill" style="color: #adaca7;"></i>profile</a>
+      </li>
+
+
+      <li class="nav-item">
+        <a class="nav-link text-white fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="navigateAndClose('/home')">
+          <i class="bi bi-house-door-fill" style="color: #38bdf8;"></i> Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="navigateAndClose('/weekreport')">
+          <i class="bi bi-bar-chart-fill" style="color: #fcd34d;"></i> Weekly Report
+        </a>
+      </li>
+
+     
+
+      <li class="nav-item mt-4 pt-4 border-top border-light border-opacity-10">
+        <a class="nav-link text-danger fs-5 fw-semibold px-0 d-flex align-items-center gap-3" style="cursor: pointer;" (click)="logout(); toggleMenu()">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div *ngIf="isMenuOpen" 
+     class="offcanvas-backdrop fade show" 
+     (click)="toggleMenu()"
+     style="background-color: rgba(0,0,0,0.6);">
+</div>
+
+
+
+  <div class="d-flex justify-content-between align-items-center mb-4 overflow-auto pb-2 gap-2 hide-scroll">
+    <div class="date-pill"
+         *ngFor="let d of dates"
+         [ngClass]="{'active': d.toDateString() === selectedDate.toDateString()}"
+         (click)="selectDate(d)">
+      <div class="fs-6 fw-bold text-uppercase">{{ d | date:'EEE' }}</div>
+      <div class="fs-4 fw-bolder">{{ d | date:'d' }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading && !dailyEntry" class="text-center py-5 my-5">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-white-50 fw-bold tracking-wide">Fetching your day...</p>
+  </div>
+
+  <div *ngIf="!isLoading && !dailyEntry" class="text-center py-5 my-5 fade-in">
+    <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 4rem;"></i>
+    <h5 class="mt-3 fw-bold text-white-50">Could not load dashboard</h5>
+    <p class="text-white-50">Check your server connection or try refreshing the page.</p>
+  </div>
+
+  <div *ngIf="!isLoading && dailyEntry" class="fade-in">
+    
+    <div class="glass-card mb-4">
+      <div class="d-flex justify-content-between align-items-end mb-3">
+        <div>
+          <h6 class="text-white-50 mb-1 fw-semibold"><i class="bi bi-lightning-charge-fill text-warning me-1"></i> Daily Intake</h6>
+          <h1 class="fw-bolder mb-0" style="font-size: 2.5rem;">
+            {{ dailyEntry?.calories_consumed || 0 }} 
+            <span class="fs-5 text-white-50 fw-normal">/ {{ dailyEntry?.calorie_goal || 0 }} kcal</span>
+          </h1>
+        </div>
+      </div>
+
+      <div class="progress progress-custom mb-4 mt-4">
+        <div class="progress-bar progress-bar-purple" role="progressbar" 
+             [style.width.%]="(dailyEntry?.calories_consumed || 0) / (dailyEntry?.calorie_goal || 1) * 100">
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-light border-opacity-10">
+         <span class="text-white-50 fw-semibold">Net Calories Left</span>
+         <span class="fs-3 fw-bold" 
+               [ngClass]="{'text-success': ((dailyEntry?.calorie_goal || 0) - (dailyEntry?.calories_consumed || 0) + (dailyEntry?.calories_burned || 0)) >= 0, 
+                           'text-danger': ((dailyEntry?.calorie_goal || 0) - (dailyEntry?.calories_consumed || 0) + (dailyEntry?.calories_burned || 0)) < 0}">
+           {{ (dailyEntry?.calorie_goal || 0) - (dailyEntry?.calories_consumed || 0) + (dailyEntry?.calories_burned || 0) }}
+         </span> 
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-4">
+        <div class="macro-card">
+          <i class="bi bi-droplet-fill fs-4" style="color: #38bdf8;"></i> <div class="fs-5 fw-bold mt-1" style="color: #38bdf8;">{{ totalProtein | number:'1.0-1' }}g</div>
+          <div class="text-white-50 small fw-semibold">Protein</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="macro-card">
+          <i class="bi bi-egg-fried fs-4" style="color: #fcd34d;"></i> <div class="fs-5 fw-bold mt-1" style="color: #fcd34d;">{{ totalCarbs | number:'1.0-1' }}g</div>
+          <div class="text-white-50 small fw-semibold">Carbs</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="macro-card">
+          <i class="bi bi-fire fs-4" style="color: #fb7185;"></i> <div class="fs-5 fw-bold mt-1" style="color: #fb7185;">{{ dailyEntry?.calories_burned || 0 }}</div>
+          <div class="text-white-50 small fw-semibold">Burned</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+       <h4 class="fw-bold mb-0">Meals Logged</h4>
+       <span class="badge bg-secondary bg-opacity-25 text-light rounded-pill fs-6">{{ dailyEntry?.foods?.length || 0 }}</span>
+    </div>
+
+    <div *ngIf="(dailyEntry?.foods?.length || 0) > 0; else emptyState">
+      <div class="glass-card mb-3 p-3 d-flex justify-content-between align-items-center" style="border-radius: 24px;" *ngFor="let food of dailyEntry?.foods">
+         <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex justify-content-center align-items-center" style="width: 50px; height: 50px; background-color: #2a223f;">
+              <i class="bi bi-cup-hot-fill fs-4" style="color: #a78bfa;"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-1 text-white">{{ food?.name }}</h6>
+              <div class="text-white-50 small fw-semibold">
+                P: {{ food?.protein }}g • C: {{ food?.carbs }}g • F: {{ food?.fat }}g
+              </div>
+            </div>
+         </div>
+         <div class="text-end d-flex align-items-center gap-3">
+           <div>
+             <div class="fw-bold fs-5 text-white">{{ food?.calories }}</div>
+             <div class="text-white-50 small">kcal</div>
+           </div>
+           <button class="btn btn-link text-white-50 p-0" (click)="openEditModal(food, 'food')">
+             <i class="bi bi-pencil-square fs-5"></i>
+           </button>
+         </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
+       <h4 class="fw-bold mb-0">Workouts Logged</h4>
+       <span class="badge bg-secondary bg-opacity-25 text-light rounded-pill fs-6">{{ dailyEntry?.exercises?.length || 0 }}</span>
+    </div>
+
+    <div *ngIf="(dailyEntry?.exercises?.length || 0) > 0; else emptyState" class="mb-3">
+      <div class="glass-card mb-3 p-3 d-flex justify-content-between align-items-center" style="border-radius: 24px;" *ngFor="let exercise of dailyEntry?.exercises">
+         <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex justify-content-center align-items-center" style="width: 50px; height: 50px; background-color: #3f1a26;">
+              <i class="bi bi-fire fs-4" style="color: #fb7185;"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-1 text-white">{{ exercise?.name }}</h6>
+            </div>
+         </div>
+         <div class="text-end d-flex align-items-center gap-3">
+           <div>
+             <div class="fw-bold fs-5" style="color: #fb7185;">{{ exercise?.calories_burned }}</div>
+             <div class="text-white-50 small">kcal</div>
+           </div>
+           <button class="btn btn-link text-white-50 p-0" (click)="openEditModal(exercise, 'exercise')">
+             <i class="bi bi-pencil-square fs-5"></i>
+           </button>
+         </div>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="glass-card mb-4 text-center py-5">
+        <div class="mb-2">
+          <i class="bi bi-inbox fs-1 text-white-50 opacity-50"></i>
+        </div>
+        <h6 class="fw-bold text-white-50">Nothing logged yet</h6>
+      </div>
+    </ng-template>
+
+
+
+
+    <div class="d-flex justify-content-between align-items-center mb-1 mt-5">
+       <h4 class="fw-bold mb-0">Add Data</h4>
+    </div>
+
+    <div class="glass-card mt-3 p-3 d-flex align-items-center gap-3 accent-border" style="border-radius: 30px;">
+      <div class="flex-grow-1">
+        <input 
+          type="text" 
+          class="form-control bg-transparent border-0 text-white shadow-none placeholder-glow " 
+          [(ngModel)]="smartQuery" 
+          [disabled]="isAdding"
+          placeholder="e.g., 'Ate 2 dosas' OR 'Ran 3 miles'"
+          (keyup.enter)="addSmartEntry()"
+          style="font-size: 1.1rem;">
+      </div>
+      <button 
+        class="btn btn-smart-add border-0 flex-shrink-0" 
+        (click)="addSmartEntry()"
+        [disabled]="!smartQuery || smartQuery.trim() === '' || isAdding">
+        <span *ngIf="isAdding" class="spinner-border spinner-border-sm"></span>
+        <i *ngIf="!isAdding" class="bi bi-magic fs-5"></i>
+      </button>
+    </div>
+
+
+
+
+
+  </div>
+
+  <div class="modal fade" tabindex="-1" [ngClass]="{'show d-block': showEditModal}" [style.background-color]="showEditModal ? 'rgba(0,0,0,0.8)' : 'transparent'" style="transition: background-color 0.3s ease;">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg overflow-hidden" style="background-color: #171221; border-radius: 32px;">
+        
+        <div class="modal-header border-0 p-4 border-bottom border-light border-opacity-10">
+          <h5 class="modal-title fw-bolder text-white">
+            Edit {{ editingType === 'food' ? 'Food' : 'Exercise' }}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="closeEditModal()"></button>
+        </div>
+
+        <div class="modal-body p-4" *ngIf="editingItem">
+          <div class="mb-4">
+            <label class="form-label fw-bold small text-white-50 text-uppercase mb-1">Name</label>
+            <input type="text" class="form-control form-control-lg border-0 rounded-4 text-white" style="background-color: #261f38;" [(ngModel)]="editingItem.name">
+          </div>
+        </div>
+    
+        <div class="modal-footer border-0 p-4 pt-0 d-flex justify-content-between">
+          <button type="button" class="btn btn-link text-danger text-decoration-none px-4 fw-bold shadow-none" (click)="deleteEditModal()" [disabled]="isSaving">
+            Delete
+          </button>
+  
+          <div class="d-flex gap-2">
+            <button type="button" class="btn text-white-50 rounded-pill px-4 fw-bold" style="background-color: #261f38;" (click)="closeEditModal()">
+              Cancel
+            </button>
+
+            <button type="button" class="btn text-white rounded-pill px-4 fw-bold shadow-sm" style="background-color: #7c3aed;" (click)="saveEdit()" [disabled]="isSaving">
+              <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+              <span *ngIf="!isSaving">Save</span>
+              <span *ngIf="isSaving">Wait...</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1055;">
+  <div class="toast align-items-center text-white border-0 shadow-lg rounded-4" 
+       [ngClass]="{
+         'show': showToast, 
+         'd-none': !showToast,
+         'bg-danger': toastType === 'error', 
+         'bg-success': toastType === 'success',
+         'bg-info': toastType === 'info'
+       }" 
+       role="alert" aria-live="assertive" aria-atomic="true"
+       style="transition: opacity 0.3s ease-in-out; min-width: 250px;">
+       
+    <div class="d-flex p-2">
+      <div class="toast-body fw-bold d-flex align-items-center gap-2">
+        <i class="bi fs-5" [ngClass]="{'bi-exclamation-circle-fill': toastType === 'error', 'bi-check-circle-fill': toastType === 'success', 'bi-info-circle-fill': toastType === 'info'}"></i>
+        {{ toastMessage }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="showToast = false"></button>
+    </div>
+  </div>
+</div>
