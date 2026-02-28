@@ -52,7 +52,7 @@ export class PresettingComponent implements OnInit {
       return;
     }
 
-    this.http.get<any>('http://127.0.0.1:8000/api/preset/', {
+    this.http.get<any>('https://caltrack-backend.vercel.app/api/preset/', {
       headers: {
         Authorization: `Token ${token}`
       }
@@ -114,7 +114,7 @@ savePreset() {
   };
   
 
-  this.http.post<PresetResponse>('http://127.0.0.1:8000/api/preset/', payload, {
+  this.http.post<PresetResponse>('https://caltrack-backend.vercel.app/api/preset/', payload, {
     headers: { Authorization: `Token ${token}` }
   }).subscribe({
     next: (res) => {
