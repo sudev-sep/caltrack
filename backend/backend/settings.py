@@ -138,4 +138,5 @@ REST_FRAMEWORK = {
 }
 
 
-GEMINI_API_KEY = "AIzaSyCRz04cySjBdebyPmDIxF7EGZEAbsPSq9c"
+# settings.py
+GEMINI_API_KEY = "AIzaSyDrrrxB6Byq6fSDEGxYSJt7NqQpuxcyGX0"

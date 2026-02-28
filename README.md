@@ -4,11 +4,6 @@ A modern, full-stack web application that uses Google's Gemini AI to completely 
 Key Features
 AI "Smart Add" Engine: Powered by gemini-2.5-flash. Type natural language (e.g., "I ate 2 dosas" or "I ran for 3 miles") into a single input bar. The AI automatically detects if it's food or exercise, calculates the macros, and logs it.
 
-Live Daily Dashboard: Instantly calculates and displays Net Calories Remaining, total Protein, Carbs, and Fat based on the day's entries.
-
-7-Day History Slider: Easily navigate through the past week to view previous meals and workouts without the page reloading.
-
-Unified UI: No clunky forms or separate pages for food vs. workouts. Everything is handled seamlessly on one dashboard.
 
 Tech Stack
 Frontend: Angular 18+ (Standalone Components), TypeScript, HTML5, CSS3, Bootstrap 5 (for responsive UI/UX).
@@ -17,4 +12,4 @@ Backend: Python, Django, Django REST Framework (DRF).
 
 AI Integration: Google Generative AI (google-generativeai).
 
-Database: SQLite (Development) -> Planned: PostgreSQL (Production).
+Database: SQLite (Development) 
