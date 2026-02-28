@@ -139,4 +139,6 @@ REST_FRAMEWORK = {
 
 
 # settings.py
-GEMINI_API_KEY = "AIzaSyDrrrxB6Byq6fSDEGxYSJt7NqQpuxcyGX0"
+import os   
+api_key = os.getenv("GEMINI_API_KEY")
+
