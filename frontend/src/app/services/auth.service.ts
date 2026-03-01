@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
 
-  private API_URL = 'https://caltrack-backend.vercel.app';
+  private API_URL = 'http://127.0.0.1:8000';
   private isBrowser: boolean;
 
   constructor(
@@ -30,6 +30,10 @@ export class AuthService {
   login(data: any): Observable<any> {
     return this.http.post<any>(`${this.API_URL}/login/`, data);
   }
+
+  // =============================
+  // Token helpers (SSR SAFE)
+  // =============================
 
   saveToken(token: string): void {
     if (!this.isBrowser) return;

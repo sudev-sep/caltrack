@@ -34,7 +34,7 @@ export class GoalsetComponent implements OnInit {
     const token = localStorage.getItem('token'); 
     const headers = new HttpHeaders().set('Authorization', `Token ${token}`);
 
-    this.http.get('https://caltrack-backend.vercel.app/api/profile/', { headers }).subscribe({
+    this.http.get('http://127.0.0.1:8000/api/profile/', { headers }).subscribe({
       next: (data) => {
         this.profileData = data;
         this.isLoading = false;

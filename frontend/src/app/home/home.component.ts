@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
 })
 export class HomeComponent implements OnInit {
   
-  private baseUrl = 'https://caltrack-backend.vercel.app/api';
+  private baseUrl = 'http://localhost:8000/api';
 
   selectedDate: Date = new Date();
   dates: Date[] = [];

@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +30,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,14 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core', 
-    "rest_framework",
+    'rest_framework',
     'rest_framework.authtoken',
-
     'corsheaders',
 ]
 
 MIDDLEWARE = [
-
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -78,12 +77,22 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Look for a database URL in the environment variables
+database_url = os.environ.get("DATABASE_URL")
+
+if database_url:
+    # If it finds one (meaning it's running on Vercel), use Neon
+    DATABASES = {
+        'default': dj_database_url.parse(database_url)
     }
-}
+else:
+    # If it doesn't (meaning it's on your computer), use the local SQLite file
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -137,6 +146,5 @@ REST_FRAMEWORK = {
     ],
 }
 
-
-import os
-api_key = os.getenv("GEMINI_API_KEY")
+# Pull the Gemini API Key securely from the environment
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")

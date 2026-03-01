@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 })
 export class WeekreportComponent implements OnInit {
 
-  private baseUrl = 'https://caltrack-backend.vercel.app';
+  private baseUrl = 'http://localhost:8000/api';
 
   dailyEntry: any = null;
   isLoading: boolean = false; 
@@ -22,7 +22,7 @@ export class WeekreportComponent implements OnInit {
 
   weeklyEntries: any[] = []; 
   goalsMetCount: number = 0;
-  averageCalories: number = 0; 
+  averageCalories: number = 0; // Added this missing variable!
   chartData: any[] = [];
 
   constructor(
@@ -34,9 +34,10 @@ export class WeekreportComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchData(); 
-    this.fetchWeeklyData(); 
+    this.fetchWeeklyData(); // This will now correctly call the renamed method below
   }
 
+  // --- DAILY DATA LOGIC ---
   fetchData(): void {
     const dateStr = new Date().toISOString().split('T')[0];
     this.isLoading = true;
@@ -65,6 +66,7 @@ export class WeekreportComponent implements OnInit {
     }
   }
 
+  // --- SIDEBAR & NAVIGATION LOGIC ---
   logout(): void {
     this.authService.logout();
   } 
@@ -79,6 +81,7 @@ export class WeekreportComponent implements OnInit {
   }
 
   // --- WEEKLY DATA LOGIC ---
+  // Renamed this from fetchData to fetchWeeklyData so it doesn't conflict!
   fetchWeeklyData(): void {
     this.isLoading = true;
     
@@ -109,7 +112,8 @@ export class WeekreportComponent implements OnInit {
         this.cd.detectChanges(); 
       }
     });
-  } 
+  } // Added the missing closing bracket here!
+
   processChartData(): void {
     const maxScale = Math.max(
       ...this.weeklyEntries.map(day => day.total_calories || 0), 
