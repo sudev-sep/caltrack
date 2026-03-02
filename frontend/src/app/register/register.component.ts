@@ -32,6 +32,10 @@ export class RegisterComponent {
   ) {}
 
   register(form: NgForm) {
+    if (form.invalid) {
+      this.errorMessage = 'Please fill out all required fields correctly.';
+      return;
+    }
 
     if (this.formData.password !== this.formData.confirm_password) {
       this.errorMessage = 'Passwords do not match';
@@ -42,25 +46,21 @@ export class RegisterComponent {
       next: () => {
         this.successMessage = 'Registration successful';
         this.errorMessage = '';
-
         form.resetForm();
-
         this.router.navigate(['/login']);
       },
       error: (err) => {
-       if (err.error && typeof err.error === 'object' && !err.error.message) {
+        if (err.error && typeof err.error === 'object' && !err.error.message) {
            const firstErrorKey = Object.keys(err.error); 
            const firstErrorMsg = err.error[firstErrorKey]; 
+           
            this.errorMessage = `${firstErrorKey}: ${firstErrorMsg}`; 
         } else {
            this.errorMessage = err.error?.message || 'Registration failed. Please check your details.';
         }
       }
     });
-      }
-    });
   }
-
 
 
 navigateAndClose(path: string): void {
