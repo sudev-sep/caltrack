@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 })
 export class WeekreportComponent implements OnInit {
 
-  private baseUrl = 'http://localhost:8000/api';
+  private baseUrl = 'https://caltrack-backend.vercel.app/api';
 
   dailyEntry: any = null;
   isLoading: boolean = false; 

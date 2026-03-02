@@ -147,4 +147,5 @@ REST_FRAMEWORK = {
 }
 
 # Pull the Gemini API Key securely from the environment
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+from dotenv import load_dotenv

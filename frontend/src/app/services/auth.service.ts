@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
 
-  private API_URL = 'http://127.0.0.1:8000';
+  private API_URL = 'https://caltrack-backend.vercel.app';
   private isBrowser: boolean;
 
   constructor(
