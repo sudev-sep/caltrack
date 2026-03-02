@@ -48,7 +48,15 @@ export class RegisterComponent {
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Registration failed';
+       if (err.error && typeof err.error === 'object' && !err.error.message) {
+           const firstErrorKey = Object.keys(err.error); 
+           const firstErrorMsg = err.error[firstErrorKey]; 
+           this.errorMessage = `${firstErrorKey}: ${firstErrorMsg}`; 
+        } else {
+           this.errorMessage = err.error?.message || 'Registration failed. Please check your details.';
+        }
+      }
+    });
       }
     });
   }
