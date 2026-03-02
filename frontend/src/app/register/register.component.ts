@@ -32,40 +32,52 @@ export class RegisterComponent {
   ) {}
 
   register(form: NgForm) {
+    // 1. FRONTEND CHECK: Did they miss fields or format things wrong in the HTML?
     if (form.invalid) {
       this.errorMessage = 'Please fill out all required fields correctly.';
       return;
     }
 
+    // 2. FRONTEND CHECK: Do the passwords match?
     if (this.formData.password !== this.formData.confirm_password) {
       this.errorMessage = 'Passwords do not match';
       return;
     }
 
+    // 3. SEND TO BACKEND
     this.authService.register(this.formData).subscribe({
       next: () => {
         this.successMessage = 'Registration successful';
         this.errorMessage = '';
+
         form.resetForm();
+
         this.router.navigate(['/login']);
       },
       error: (err) => {
         if (err.error && typeof err.error === 'object' && !err.error.message) {
-           const firstErrorKey = Object.keys(err.error); 
-           const firstErrorMsg = err.error[firstErrorKey]; 
            
-           this.errorMessage = `${firstErrorKey}: ${firstErrorMsg}`; 
+           const errorData = err.error as Record<string, string[]>;
+           const keys = Object.keys(errorData);
+           
+           if (keys.length > 0) {
+              const firstErrorKey = keys; 
+              const firstErrorMsg = errorData[firstErrorKey]; 
+              
+              this.errorMessage = `${firstErrorKey}: ${firstErrorMsg}`; 
+           } else {
+              this.errorMessage = 'Registration failed. Please check your details.';
+           }
+
         } else {
-           this.errorMessage = err.error?.message || 'Registration failed. Please check your details.';
+           this.errorMessage = err.error?.message || 'Registration failed.';
         }
       }
     });
   }
 
-
-navigateAndClose(path: string): void {
+  navigateAndClose(path: string): void {
     this.isMenuOpen = false; 
     this.router.navigate([path]); 
   }
-
 }
