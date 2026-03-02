@@ -32,10 +32,6 @@ export class RegisterComponent {
   ) {}
 
   register(form: NgForm) {
-    if (form.invalid) {
-      this.errorMessage = 'Please fill out all required fields correctly.';
-      return;
-    }
 
     if (this.formData.password !== this.formData.confirm_password) {
       this.errorMessage = 'Passwords do not match';
@@ -46,27 +42,15 @@ export class RegisterComponent {
       next: () => {
         this.successMessage = 'Registration successful';
         this.errorMessage = '';
+
         form.resetForm();
+
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        if (err.error && typeof err.error === 'object' && !err.error.message) {
-           // We explicitly tell TypeScript this is an object with string arrays
-           const errorData = err.error as Record<string, string[]>;
-           
-           // Grab the very first key name (e.g., 'email')
-           const firstKey = Object.keys(errorData);
-           
-           if (firstKey) {
-              // Grab the first error message inside that key's array
-              const firstMessage = errorData[firstKey];
-              this.errorMessage = `${firstKey}: ${firstMessage}`; 
-           } else {
-              this.errorMessage = 'Registration failed. Please check your details.';
-           }
-        } else {
-           this.errorMessage = err.error?.message || 'Registration failed.';
-        }
+        this.errorMessage = err.error?.message || 'Registration failed';
+        alert(this.errorMessage);
+
       }
     });
   }
