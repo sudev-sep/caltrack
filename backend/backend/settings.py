@@ -131,7 +131,23 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+# The VIP list of allowed frontend URLs
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+    "http://127.0.0.1:4200",
+    "https://caltrack-frontend.vercel.app",
+    "https://caltrack-frontend-o32jwqwmd-sudevanss4-1474s-projects.vercel.app",
+]
+
+# Tell Django to trust these URLs for form submissions (like login)
+CSRF_TRUSTED_ORIGINS = [
+    "https://caltrack-frontend.vercel.app",
+    "https://caltrack-frontend-o32jwqwmd-sudevanss4-1474s-projects.vercel.app",
+]
+
 CORS_ALLOW_CREDENTIALS = True
 
 AUTH_USER_MODEL = 'core.User'
